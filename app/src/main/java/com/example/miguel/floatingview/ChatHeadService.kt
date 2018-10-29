@@ -22,13 +22,6 @@ import android.support.annotation.RequiresApi
 import android.widget.FrameLayout
 import android.support.v4.content.ContextCompat.getSystemService
 
-
-
-
-
-
-
-
 class ChatHeadService : Service(), FloatingViewListener {
     companion object {
         val TAG: String = ChatHeadService::class.java.simpleName
@@ -46,6 +39,7 @@ class ChatHeadService : Service(), FloatingViewListener {
         return null
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
 
@@ -92,12 +86,16 @@ class ChatHeadService : Service(), FloatingViewListener {
 
         params.gravity = Gravity.BOTTOM or Gravity.START
 
-        mFrameLayout = FrameLayout(this)
+        val layout = LayoutInflater.from(this).inflate(R.layout.super_layout, null)
 
-        windowManager?.addView(mFrameLayout, params)
+        val manager = MyManager(layout, this) {
+            windowManager?.removeView(layout)
+            floatingViewManager?.setDisplayMode(FloatingViewManager.DISPLAY_MODE_SHOW_ALWAYS)
+        }
 
-        val layoutInflater = this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        layoutInflater.inflate(R.layout.super_layout, mFrameLayout)
+        floatingViewManager?.setDisplayMode(FloatingViewManager.DISPLAY_MODE_HIDE_ALWAYS)
+
+        windowManager?.addView(layout, params)
     }
 
     private fun removeHead() {
